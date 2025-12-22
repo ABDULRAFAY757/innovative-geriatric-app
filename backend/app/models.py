@@ -24,6 +24,7 @@ class Patient(Base):
     user = relationship("User", back_populates="patients")
     medications = relationship("Medication", back_populates="patient")
 
+<<<<<<< Updated upstream
 class Medication(Base):
     __tablename__ = "medications"
     id = Column(Integer, primary_key=True, index=True)
@@ -35,3 +36,29 @@ class Medication(Base):
     start_date = Column(String)
     end_date = Column(String)
     patient = relationship("Patient", back_populates="medications")
+=======
+class Doctor(BaseModel):
+    id: Optional[str] = Field(None)
+    name: str
+    phone: str
+    email: EmailStr
+    specialization: str
+    availability: str
+    plan: Plan
+
+
+# ---------------- Symptoms ----------------
+class Symptom(BaseModel):
+    id: Optional[str] = Field(None)
+    code: str            # e.g., SYM001
+    name: str
+    description: Optional[str] = None
+
+# ---------------- Medications ----------------
+class Medication(BaseModel):
+    id: Optional[str] = Field(None)
+    name: str
+    dosage: Optional[str] = None     # e.g., 500mg
+    frequency: Optional[str] = None  # e.g., Twice daily
+    duration_days: Optional[int] = None
+>>>>>>> Stashed changes
