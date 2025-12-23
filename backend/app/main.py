@@ -1,19 +1,16 @@
 from fastapi import FastAPI, HTTPException
-from .database import patient_collection, doctor_collection
-from .crud import serialize
-from .models import Patient, Doctor
+from app.database import patient_collection, doctor_collection
 from app.crud import serialize
+from app.models import Patient, Doctor
 from bson import ObjectId
 
 app = FastAPI(title="Healthcare API")
-# main.py
+
 @app.get("/")
 async def root():
     return {"message": "Healthcare API is running!"}
 
-
 # ---------------- PATIENT CRUD ----------------
-
 @app.post("/patients", response_model=Patient)
 async def create_patient(patient: Patient):
     result = await patient_collection.insert_one(patient.dict(exclude={"id"}))
@@ -48,7 +45,6 @@ async def delete_patient(id: str):
     return {"message": "Patient deleted"}
 
 # ---------------- DOCTOR CRUD ----------------
-
 @app.post("/doctors", response_model=Doctor)
 async def create_doctor(doctor: Doctor):
     result = await doctor_collection.insert_one(doctor.dict(exclude={"id"}))

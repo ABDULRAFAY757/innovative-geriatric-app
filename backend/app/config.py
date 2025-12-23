@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    MONGODB_URL: str
+    MONGO_URI: str
     DATABASE_NAME: str = "medical_app"
 
     class Config:
