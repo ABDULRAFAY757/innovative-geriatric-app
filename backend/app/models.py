@@ -2,6 +2,9 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from enum import Enum
 
+from typing import Optional, List
+
+
 class Plan(str, Enum):
     free = "Free Plan"
     professional = "Professional Plan"
@@ -23,3 +26,13 @@ class Doctor(BaseModel):
     specialization: str
     availability: str
     plan: Plan
+
+# ---------------- Symptoms ----------------
+class Symptom(BaseModel):
+    id: Optional[str] = None
+    symptom: str
+
+# ---------------- Medications ----------------
+class Medication(BaseModel):
+    id: Optional[str] = None
+    name: str  # treatment or medicine name
