@@ -9,11 +9,20 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for mock token
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('role');
+        const name = localStorage.getItem('name');
+        const userId = localStorage.getItem('userId');
+        const patientId = localStorage.getItem('patientId');
+
         if (token) {
-            setUser({ role, token }); // In real app, validate token with backend
+            setUser({
+                role,
+                token,
+                name,
+                id: userId,
+                patientId: patientId
+            });
         }
         setLoading(false);
     }, []);
@@ -40,14 +49,20 @@ export const AuthProvider = ({ children }) => {
             const data = response.data;
 
             const userData = {
+                id: data.user_id,
+                patientId: data.patient_id,
                 role: data.role,
                 token: data.access_token,
-                name: email.split('@')[0] // Simple name extraction for display
+                name: data.full_name || email.split('@')[0]
             };
 
             setUser(userData);
             localStorage.setItem('token', data.access_token);
-            localStorage.setItem('role', data.role);
+            localStorage.setItem('role', userData.role);
+            localStorage.setItem('name', userData.name);
+            localStorage.setItem('userId', userData.id);
+            if (userData.patientId) localStorage.setItem('patientId', userData.patientId);
+
             return userData;
 
         } catch (error) {
@@ -68,6 +83,9 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem('token');
         localStorage.removeItem('role');
+        localStorage.removeItem('name');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('patientId');
     };
 
     return (

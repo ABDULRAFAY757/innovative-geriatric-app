@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import MedicationList from '../components/MedicationList';
 import { Heart, Activity, Brain, AlertTriangle } from 'lucide-react';
+import { patientService } from '../services/api';
 
 const StatCard = ({ icon: Icon, label, value, color, trend }) => (
     <div className="glass-card p-5 flex items-start justify-between">
@@ -18,22 +19,43 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => (
 
 const Dashboard = () => {
     const { user } = useAuth();
+    const [vitals, setVitals] = React.useState({ hr: '--', bp: '--/--', brain: '85/100' });
+    const [loading, setLoading] = React.useState(true);
+
+    const fetchVitals = async () => {
+        if (!user?.patientId) return;
+        try {
+            const response = await patientService.getVitals(user.patientId);
+            const data = response.data;
+            const hr = data.find(v => v.type === 'HR')?.value || '72';
+            const bp = data.find(v => v.type === 'BP')?.value || '120/80';
+            setVitals({ hr: `${hr} bpm`, bp, brain: '85/100' });
+        } catch (error) {
+            console.error("Failed to fetch vitals", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchVitals();
+    }, []);
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <header className="mb-8">
                 <h2 className="text-3xl font-bold text-slate-800">
-                    Good Morning, {user.name.split(' ')[0]}
+                    Good Morning, {user.name ? user.name.split(' ')[0] : 'User'}
                 </h2>
                 <p className="text-slate-500">Here is your daily health summary</p>
             </header>
 
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={Heart} label="Heart Rate" value="72 bpm" color="bg-rose-500 shadow-rose-500/30" trend="Normal" />
-                <StatCard icon={Activity} label="Blood Pressure" value="120/80" color="bg-cyan-500 shadow-cyan-500/30" trend="+2% from yesterday" />
-                <StatCard icon={Brain} label="Cognitive Score" value="85/100" color="bg-indigo-500 shadow-indigo-500/30" trend="Stable" />
-                <StadCard icon={AlertTriangle} label="Risk Level" value="Low" color="bg-green-500 shadow-green-500/30" trend="No recent falls" />
+                <StatCard icon={Heart} label="Heart Rate" value={vitals.hr} color="bg-rose-500 shadow-rose-500/30" trend="Normal" />
+                <StatCard icon={Activity} label="Blood Pressure" value={vitals.bp} color="bg-cyan-500 shadow-cyan-500/30" trend="Stable" />
+                <StatCard icon={Brain} label="Cognitive Score" value={vitals.brain} color="bg-indigo-500 shadow-indigo-500/30" trend="Stable" />
+                <StatCard icon={AlertTriangle} label="Risk Level" value="Low" color="bg-green-500 shadow-green-500/30" trend="No recent falls" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
